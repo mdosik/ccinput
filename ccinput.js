@@ -9,10 +9,17 @@ ccinputApp.config(function ($routeProvider) {
         .when('/', {
             templateUrl : 'pages/home.html',
             controller  : 'mainController'
+        })
+        .when('/ccinput', {
+            templateUrl : 'pages/ccinput.html',
+            controller  : 'ccinputController'
         });
 });
 
 
 ccinputApp.controller('mainController', ['$scope',function($scope) {
-    $scope.message = 'huh?';
 }]);
+
+ccinputApp.controller('ccinputController', ['$scope',function($scope) {
+}]);
+
