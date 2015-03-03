@@ -1,19 +1,18 @@
-var ccinputApp = angular.module('ccinputApp', ['ngRoute']);
+/*global angular*/
 
-ccinputApp.config(['$controllerProvider', function ($controllerProvider) {
-    $controllerProvider.allowGlobals();
-}]);
+var ccinputApp = angular.module('ccinputApp',['ngRoute']);
 
 ccinputApp.config(function ($routeProvider) {
     'use strict';
     $routeProvider
     
-    .when('/', {
-        templateUrl : 'pages/home.html',
-        controller  : 'mainController'
-    });
+        .when('/', {
+            templateUrl : 'pages/home.html',
+            controller  : 'mainController'
+        });
 });
 
-ccinputApp.controller('mainController', function ($scope) {
-    $scope.message = "huh?";
-});
+
+ccinputApp.controller('mainController', ['$scope',function($scope) {
+    $scope.message = 'huh?';
+}]);
