@@ -21,13 +21,11 @@ ccinputApp.controller('mainController', ['$scope',function($scope) {
 }]);
 
 ccinputApp.controller('ccinputModalController', ['$scope','$modal','$log',function($scope, $modal, $log) {
-    
-    $scope.open = function () {
-        var modalInstance = $modal.open({
-            templateUrl : 'ccinputModalContent.html',
-            controller  : 'ccinputModalInstanceControl'
-        });
-    };
+     
+    var modalInstance = $modal.open({
+        templateUrl : 'ccinputModalContent.html',
+        controller  : 'ccinputModalInstanceControl'
+    });
 }]);
 
 ccinputApp.controller("ccinputModalInstanceControl", ['$scope',function($scope) {
