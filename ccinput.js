@@ -65,7 +65,7 @@ ccinputApp.service('ccFunctions', [function (prefix){
                 return (cctypes[i].image);
             }      
         }
-        return(cctypes[cctypes.length].image);
+        return(cctypes[cctypes.length - 1].image);
     }
 }]);
 
@@ -86,8 +86,7 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                 modelCtrl.$setViewValue(transformedInput);
                 modelCtrl.$render();
                 console.log(ccFunctions.getCCType(transformedInput));
-                var cctype2=ccFunctions.getCCType(transformedInput);
-                scope.ccImageURL = ccFunctions.getCCImageFromType('Visa');
+                scope.ccImageURL = ccFunctions.getCCImageFromType(ccFunctions.getCCType(transformedInput));
                 // scope.ccImageURL = 'Visa.png';
                 console.log(inputValue+":"+transformedInput+":"+scope.ccNumber);
               return transformedInput;
