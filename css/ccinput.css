@@ -1,0 +1,14 @@
+label {
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 150px;
+    text-align: left;
+    line-height: 200%
+}
+
+input {
+    display: inline-block;
+    float: left;
+}
+

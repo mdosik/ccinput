@@ -1,0 +1,18 @@
+<div ng-controller="ccinputModalController">
+    <script type="text/ng-template" id="ccinputModalContent.html">
+        <div class="modal-header">
+            <h1>Enter Your Credit Card Number</h1>
+        </div>
+        <div class="modal-body">
+            <div>
+                <label>Credit Card Number </label><input type="text" ng-model="ccNumber" cc-input-validation size="20"/><br>
+                <label>CVV </label><input type="text" size="4">
+                <h3> number: {{ ccNumber }} </h3>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+</div>
