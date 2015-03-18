@@ -30,16 +30,17 @@ ccinputApp.controller('ccinputModalController', ['$scope','$modal','$log',functi
 
 ccinputApp.controller("ccinputModalInstanceControl", ['$scope',function($scope) {
     $scope.ccNumber = "";
-    $scope.ccNumberReal = "";
+    $scope.ccImageURL = "genericcard.png";
     console.log("CC Number: " + $scope.ccNumber);
 }]);
 
 
 ccinputApp.service('ccFunctions', [function (prefix){
     
-    var cctypes=[{type:'Visa',      prefixes:'4',              length:'16'},
-                 {type:'MsterCard', prefixes:'51,52,53,54,55', length:'16'},
-                 {type:'AmEx',      prefixes:'34,37',          length:'15'}];
+    var cctypes=[{type:'Visa',      prefixes:'4',              length:'16', image: 'Visa.png'},
+                 {type:'MsterCard', prefixes:'51,52,53,54,55', length:'16', image: 'MasterCard.png'},
+                 {type:'AmEx',      prefixes:'34,37',          length:'15', image: 'Amex.png'},
+                 {type:'Unknown',   prefixes:'x',              lenght:'16', image: 'genericcard.png'}];
     
     // Loop through the different credit cards and then through the different prefixes
     // for each credit card and compare that to the characters passed in in the prefix
@@ -55,7 +56,17 @@ ccinputApp.service('ccFunctions', [function (prefix){
         
         return ("noType");
         
-    };
+    }
+    
+    this.getCCImageFromType = function (type) {
+        var i;
+        for (i = 0; i < cctypes.length; i++) {
+            if (cctypes[i].type == type) {
+                return (cctypes[i].image);
+            }      
+        }
+        return(cctypes[cctypes.length].image);
+    }
 }]);
 
 
@@ -65,7 +76,7 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
         require: 'ngModel',
         link: function(scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function(inputValue) {
-                var transformedInput = inputValue.toLowerCase().replace(/^\s\D/g, '');
+                var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
                 
                 if ((transformedInput.length == 4) || 
                     (transformedInput.length == 9) || 
@@ -75,6 +86,9 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                 modelCtrl.$setViewValue(transformedInput);
                 modelCtrl.$render();
                 console.log(ccFunctions.getCCType(transformedInput));
+                var cctype2=ccFunctions.getCCType(transformedInput);
+                scope.ccImageURL = ccFunctions.getCCImageFromType('Visa');
+                // scope.ccImageURL = 'Visa.png';
                 console.log(inputValue+":"+transformedInput+":"+scope.ccNumber);
               return transformedInput;
           });
