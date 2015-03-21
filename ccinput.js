@@ -31,6 +31,7 @@ ccinputApp.controller('ccinputModalController', ['$scope','$modal','$log',functi
 ccinputApp.controller("ccinputModalInstanceControl", ['$scope',function($scope) {
     $scope.ccNumber = "";
     $scope.ccImageURL = "genericcard.png";
+    $scope.ccType = "";
     console.log("CC Number: " + $scope.ccNumber);
 }]);
 
@@ -40,7 +41,7 @@ ccinputApp.service('ccFunctions', [function (prefix){
     var cctypes=[{type:'Visa',      prefixes:'4',              length:'16', image: 'Visa.png'},
                  {type:'MsterCard', prefixes:'51,52,53,54,55', length:'16', image: 'MasterCard.png'},
                  {type:'AmEx',      prefixes:'34,37',          length:'15', image: 'Amex.png'},
-                 {type:'Unknown',   prefixes:'x',              lenght:'16', image: 'genericcard.png'}];
+                 {type:'Unknown',   prefixes:'x',              length:'16', image: 'genericcard.png'}];
     
     // Loop through the different credit cards and then through the different prefixes
     // for each credit card and compare that to the characters passed in in the prefix
@@ -76,20 +77,37 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
         require: 'ngModel',
         link: function(scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function(inputValue) {
+                
+                // Only allow numbers and spaces so we can auto create the xxxx xxxx xxxx xxxx 
+                // as the user types in their cc number
                 var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
                 
+                // This puts in the space in between the groups of numbers assuming the above
+                // format for cards other than Amex.  Amex format is xxxx xxxxxx xxxxx
                 if ((transformedInput.length == 4) || 
                     (transformedInput.length == 9) || 
                     (transformedInput.length == 14)) {
                     transformedInput = transformedInput + " ";
                 }
+                
+                // Special case for Amex Cards               
+                if (scope.ccType == "AmEx") {
+                    console.log("Amex Type");
+                    if ((transformedInput.length == 4) || 
+                        (transformedInput.length == 12)) {
+                        transformedInput = transformedInput + " ";
+                    }
+                }
+                
                 modelCtrl.$setViewValue(transformedInput);
                 modelCtrl.$render();
-                console.log(ccFunctions.getCCType(transformedInput));
-                scope.ccImageURL = ccFunctions.getCCImageFromType(ccFunctions.getCCType(transformedInput));
-                // scope.ccImageURL = 'Visa.png';
+                
+                // Let's go put an image up that matches the type of credit card that is being 
+                // entered.  The type can be determined by the first couple of digits.
+                scope.ccType = ccFunctions.getCCType(transformedInput);
+                scope.ccImageURL = ccFunctions.getCCImageFromType(scope.ccType);
                 console.log(inputValue+":"+transformedInput+":"+scope.ccNumber);
-              return transformedInput;
+                return transformedInput;
           });
         }
     }
