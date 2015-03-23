@@ -78,9 +78,18 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
         link: function(scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function(inputValue) {
                 
-                // Only allow numbers and spaces so we can auto create the xxxx xxxx xxxx xxxx 
-                // as the user types in their cc number
-                var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
+                console.log(element);
+                var regex = /^[0-9]/;
+                var transformedInput = inputValue;
+                
+                if (transformedInput[transformedInput.length-1] == " ") {
+                       transformedInput = transformedInput.substring(0, transformedInput.length - 1);
+                }
+                if (!regex.test(transformedInput)) {
+                    transformedInput = transformedInput.substring(0, transformedInput.length - 1);
+                }
+                                    
+                // var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
                 
                 // This puts in the space in between the groups of numbers assuming the above
                 // format for cards other than Amex.  Amex format is xxxx xxxxxx xxxxx
@@ -90,7 +99,7 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                     transformedInput = transformedInput + " ";
                 }
                 
-                // Special case for Amex Cards               
+                // Special case for Amex Cards xxxx xxxxxx xxxxx              
                 if (scope.ccType == "AmEx") {
                     console.log("Amex Type");
                     if ((transformedInput.length == 4) || 
