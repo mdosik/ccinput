@@ -32,8 +32,6 @@ ccinputApp.controller("ccinputModalInstanceControl", ['$scope',function($scope) 
     $scope.ccNumber = "";
     $scope.ccImageURL = "genericcard.png";
     $scope.ccType = "";
-    $scope.ccFormatPadded = false;
-    console.log("CC Number: " + $scope.ccNumber);
 }]);
 
 
@@ -70,6 +68,19 @@ ccinputApp.service('ccFunctions', [function (prefix){
         }
         return(cctypes[cctypes.length - 1].image);
     }
+    
+    
+    // Got regex from here: http://www.richardsramblings.com/regex/credit-card-numbers/
+    // Did some jiggering to make the check after each number is typed in.  I'm sure there
+    // is a more elegant way than this.  I also didn't have the brain muscle to combine both
+    // Amex and everyone else's format. Also, for some reason, couldn't get the capture with \1
+    // to work.
+    this.doCCRegexCheck = function (ccnum) {
+        var regex = /(?:^4|^5|^6)$|(?:^4\d|^5[1-5]|^65|^60)$|(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})$|(?:(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})([\ ]\d{1,4}){1,3})$/;
+        var regexAmex = /(?:^3[47]{0,1})$|(?:^3[47]{0,1}\d{1,2})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6}[\ ]\d{1,5})$/;
+        
+        return (regex.test(ccnum) || regexAmex.test(ccnum));
+    }
 }]);
 
 
@@ -79,15 +90,6 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
         require: 'ngModel',
         link: function(scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function(inputValue) {
-                
-                // Got regex from here: http://www.richardsramblings.com/regex/credit-card-numbers/
-                // Did some jiggering to make the check after each number is typed in.  I'm sure there
-                // is a more elegant way than this.  I also didn't have the brain muscle to combine both
-                // Amex and everyone else's format. Also, for some reason, couldn't get the matching with \1
-                // to work.
-                
-                var regex = /(?:^4|^5|^6)$|(?:^4\d|^5[1-5]|^65|^60)$|(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})$|(?:(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})([\ ]\d{1,4}){1,3})$/;
-                var regexAmex = /(?:^3[47]{0,1})$|(?:^3[47]{0,1}\d{1,2})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6}[\ ]\d{1,5})$/
                 
                 var transformedInput = inputValue;
                 
@@ -108,12 +110,11 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                     }
                 }
                 
-                console.log(scope.backspace);
-                
                if (transformedInput[transformedInput.length-1] == " ") {
                    transformedInput = transformedInput.substring(0, transformedInput.length - 1);
                 }
-                if ((!regex.test(transformedInput)) && (!regexAmex.test(transformedInput))) {
+               // if ((!regex.test(transformedInput)) && (!regexAmex.test(transformedInput))) {
+                if (!ccFunctions.doCCRegexCheck(transformedInput)) {
                     transformedInput = transformedInput.substring(0, transformedInput.length - 1);
                 }
                                     
