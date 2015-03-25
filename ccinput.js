@@ -87,24 +87,28 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                 // to work.
                 
                 var regex = /(?:^4|^5|^6)$|(?:^4\d|^5[1-5]|^65|^60)$|(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})$|(?:(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})([\ ]\d{1,4}){1,3})$/;
-                
-                // var regexAmex = /\b(?:3[47]\d{2}([\ \-]?)\d{6}\1\d /;
-                var regexAmex = /(?:^3[47]\d{1,2})$|(?:^3[47]\d{1,2}[\ ]\d{1,6}[\ ]\d)$/
                 var regexAmex = /(?:^3[47]{0,1})$|(?:^3[47]{0,1}\d{1,2})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6})$|(?:^3[47]{0,1}\d{1,2}[\ ]\d{1,6}[\ ]\d{1,5})$/
-                var transformedInput = inputValue;
-                var keyPressed;
                 
+                var transformedInput = inputValue;
+                
+                
+                // I'm trying to work through the scenario where this directive has added a space to the formatting
+                // of the credit card but now the user wants to backspace and retype something in.  Without any logic
+                // the app will appear that it won't let the user backspace passed the padded space.  What is happening
+                // is the user backspaces and then the app adds the space back in.  I've got some lame scoping going on
+                // here too.
                 
                 scope.keyPress = function(keyCode) {
                     if ((keyCode == 8) || (keyCode == 46)) {
-                        keyPressed = true;
+                        scope.backspace = true;
+                        return true;
                     } else {
-                        keyPressed = false;
+                        scope.backspace = false;
+                        return false;
                     }
-                    console.log(keyPressed);
                 }
                 
-               // transformedInput.trim();
+                console.log(scope.backspace);
                 
                if (transformedInput[transformedInput.length-1] == " ") {
                    transformedInput = transformedInput.substring(0, transformedInput.length - 1);
@@ -113,21 +117,21 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                     transformedInput = transformedInput.substring(0, transformedInput.length - 1);
                 }
                                     
-                // var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
                 
                 // This puts in the space in between the groups of numbers assuming the above
                 // format for cards other than Amex.  Amex format is xxxx xxxxxx xxxxx          
                 if (scope.ccType == "AmEx") {
                     console.log("Amex Type");
-                    if ((transformedInput.length == 4) || 
-                        (transformedInput.length == 11)) {
+                    if (((transformedInput.length == 4) || 
+                        (transformedInput.length == 11)) &&
+                        (!scope.backspace)) {
                             transformedInput = transformedInput + " ";
                     }
                 } else {
                     if (((transformedInput.length == 4) || 
                         (transformedInput.length == 9) ||                                          
                         (transformedInput.length == 14)) &&
-                        (!keyPressed)) {
+                        (!scope.backspace)) {
                             transformedInput = transformedInput + " ";
                         }
                 }
