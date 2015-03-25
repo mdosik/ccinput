@@ -32,6 +32,7 @@ ccinputApp.controller("ccinputModalInstanceControl", ['$scope',function($scope) 
     $scope.ccNumber = "";
     $scope.ccImageURL = "genericcard.png";
     $scope.ccType = "";
+    $scope.ccFormatPadded = false;
     console.log("CC Number: " + $scope.ccNumber);
 }]);
 
@@ -78,12 +79,28 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
         link: function(scope, element, attrs, modelCtrl) {
             modelCtrl.$parsers.push(function(inputValue) {
                 
-                console.log(element);
-                var regex = /^[0-9]/;
+                var keyPressed;
+                // var regex = /^[0-9]+$/;
+                // var regex = /(?:3[47]\d{2}([\ \-]?)\d{6}\1\d|(?:(?:4\d|5[1-5]|65)\d{2}|6011)([\ \-]?)\d{4}\2\d{4}\2)\d{4}/;
+                var regex = /(?:^4|^5|^6)$|(?:^4\d|^5[1-5]|^65|^60)$|(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})$|(?:(?:^4\d{2,3}|^5[1-5]\d{1,2}|^65\d{1,2}|^60(?:1){1,2})([\ ]\d{1,4}){1,3})$/;
+                
+                var regexAmex = / /;
                 var transformedInput = inputValue;
                 
-                if (transformedInput[transformedInput.length-1] == " ") {
-                       transformedInput = transformedInput.substring(0, transformedInput.length - 1);
+                
+                scope.keyPress = function(keyCode) {
+                    if ((keyCode == 8) || (keyCode == 46)) {
+                        keyPressed = true;
+                    } else {
+                        keyPressed = false;
+                    }
+                    console.log(keyPressed);
+                }
+                
+               // transformedInput.trim();
+                
+               if (transformedInput[transformedInput.length-1] == " ") {
+                   transformedInput = transformedInput.substring(0, transformedInput.length - 1);
                 }
                 if (!regex.test(transformedInput)) {
                     transformedInput = transformedInput.substring(0, transformedInput.length - 1);
@@ -92,22 +109,23 @@ ccinputApp.directive('ccInputValidation', ['ccFunctions', function (ccFunctions)
                 // var transformedInput = inputValue.toLowerCase().replace(/[^0-9\s]/g, '');
                 
                 // This puts in the space in between the groups of numbers assuming the above
-                // format for cards other than Amex.  Amex format is xxxx xxxxxx xxxxx
-                if ((transformedInput.length == 4) || 
-                    (transformedInput.length == 9) || 
-                    (transformedInput.length == 14)) {
-                    transformedInput = transformedInput + " ";
-                }
-                
-                // Special case for Amex Cards xxxx xxxxxx xxxxx              
+                // format for cards other than Amex.  Amex format is xxxx xxxxxx xxxxx          
                 if (scope.ccType == "AmEx") {
                     console.log("Amex Type");
                     if ((transformedInput.length == 4) || 
                         (transformedInput.length == 12)) {
-                        transformedInput = transformedInput + " ";
+                            transformedInput = transformedInput + " ";
                     }
+                } else {
+                    if (((transformedInput.length == 4) || 
+                        (transformedInput.length == 9) ||                                          
+                        (transformedInput.length == 14)) &&
+                        (!keyPressed)) {
+                            transformedInput = transformedInput + " ";
+                        }
                 }
-                
+        
+                    
                 modelCtrl.$setViewValue(transformedInput);
                 modelCtrl.$render();
                 
